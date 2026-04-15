@@ -8,9 +8,11 @@
 |------|------|------|
 | Vite 開發環境 | ✅ 完成 | HMR、TypeScript、Vue SFC |
 | Tailwind CSS 4 整合 | ✅ 完成 | @tailwindcss/vite plugin |
-| 深色模式 | ✅ 完成 | 系統偏好自動切換 |
-| 響應式佈局 | ✅ 完成 | 1024px 斷點 |
-| 互動計數器 | ✅ 完成 | HelloWorld 展示元件 |
+| 後台管理介面 | ✅ 完成 | 暗黑模式、可收合 Sidebar |
+| 常用 GIF 圖庫 | ✅ 完成 | 類別篩選、GIF 卡片、複製網址 |
+| 深色模式 | ✅ 完成 | 後台固定暗色，不跟隨系統偏好 |
+| 響應式佈局 | ✅ 完成 | 卡片網格 1/2/3 欄自動切換 |
+| 互動計數器 | ✅ 完成 | HelloWorld 展示元件（已不在主入口） |
 | Vue Router | ❌ 未安裝 | 目前為單頁，無路由需求 |
 | Pinia 狀態管理 | ❌ 未安裝 | 狀態在元件層管理 |
 | 測試框架 | ❌ 未設定 | 詳見 TESTING.md |
@@ -18,6 +20,45 @@
 ---
 
 ## 功能詳細說明
+
+### 後台管理介面
+
+**狀態**：✅ 完成
+
+全螢幕暗黑模式 Shell，由 `src/App.vue` 實作。
+
+**行為描述**：
+- 背景色固定為 `#0d1117`（深黑），不跟隨系統偏好
+- 左側 Sidebar（`bg-[#161b22]`）預設展開（`w-60`），點擊切換按鈕後收起（`w-16`），寬度以 `transition-all duration-300` 動畫過渡
+- 展開時顯示品牌標題「後台管理」（amber-400）+ 完整選單文字；收起時只顯示圖示，hover 顯示 tooltip
+- 選單項目 active 狀態：amber-400 底色 + 邊框
+
+---
+
+### 常用 GIF 圖庫
+
+**狀態**：✅ 完成
+
+`src/components/GifGallery.vue`，後台主內容區的第一個頁面。
+
+**行為描述**：
+- 頁面標題 + 副標描述
+- 類別篩選按鈕（所有 / 可愛 / 常用），點擊後即時過濾卡片清單
+- 卡片網格：`grid-cols-1`（手機）/ `sm:grid-cols-2` / `lg:grid-cols-3`
+- 每張卡片：
+  - `aspect-video` GIF 預覽圖（直接以 URL 作為 `<img src>`）
+  - 圖片標題 + 類別標籤
+  - 複製網址按鈕：點擊後呼叫 `navigator.clipboard.writeText(url)`，按鈕轉為綠色「已複製！」並在 2 秒後自動還原
+
+**色彩規則**（篩選按鈕 active 與卡片標籤統一）：
+
+| 類別 | 色系 | Tailwind class |
+|------|------|---------------|
+| 所有 | Amber | `text-amber-400 bg-amber-400/15 border-amber-400/25` |
+| 可愛 | Pink | `text-pink-400 bg-pink-500/15 border-pink-500/25` |
+| 常用 | Sky | `text-sky-400 bg-sky-500/15 border-sky-500/25` |
+
+---
 
 ### Vite 開發環境
 

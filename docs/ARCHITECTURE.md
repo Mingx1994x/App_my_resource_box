@@ -31,14 +31,15 @@ ya-resource-frontend-app/
 │
 ├── src/
 │   ├── main.ts                  # Vue 應用進入點：import style.css → createApp(App).mount('#app')
-│   ├── App.vue                  # 根元件，目前只 import 並渲染 HelloWorld
-│   ├── style.css                # 全域樣式：@import "tailwindcss" + CSS 自訂屬性 + 佈局樣式
+│   ├── App.vue                  # 根元件，後台管理 Shell（Sidebar + 主內容區）
+│   ├── style.css                # 全域樣式：@import "tailwindcss" + CSS 自訂屬性（#app 全寬）
 │   ├── assets/                  # 以 ES module 方式 import 的靜態資源（Vite 會處理 hash）
 │   │   ├── hero.png             # Hero 區塊的背景圖片（170×179 px）
 │   │   ├── vite.svg             # Vite 標誌
 │   │   └── vue.svg              # Vue 標誌
 │   └── components/
-│       └── HelloWorld.vue       # 主要展示元件（Hero 圖、計數器按鈕、Next Steps 區塊）
+│       ├── HelloWorld.vue       # 原始展示元件（Hero 圖、計數器按鈕、Next Steps）
+│       └── GifGallery.vue       # 常用 GIF 圖庫頁面（類別篩選、卡片網格、複製網址）
 │
 ├── docs/                        # 專案文件目錄
 │   ├── README.md
@@ -66,43 +67,43 @@ index.html 被 Vite 提供
 <script type="module" src="/src/main.ts"> 被執行
     ↓
 main.ts:
-  import './style.css'           ← Tailwind 全域樣式注入（@import "tailwindcss" + 自訂屬性 + 佈局）
+  import './style.css'           ← Tailwind 全域樣式注入（@import "tailwindcss" + #app 全寬）
   import App from './App.vue'    ← 根元件載入
   createApp(App).mount('#app')   ← Vue 應用掛載至 index.html 的 <div id="app">
     ↓
-App.vue render:
-  <HelloWorld />                 ← 唯一子元件，包含所有可見 UI
+App.vue render（後台管理 Shell）:
+  const sidebarOpen = ref(true)  ← Sidebar 展開/收起狀態
+  <aside>                        ← 可收合 Sidebar（w-60 / w-16）
+  <main>
+    <GifGallery />               ← 常用 GIF 圖庫頁面
+  </main>
     ↓
-HelloWorld.vue:
-  import viteLogo from '../assets/vite.svg'   ← Vite 處理後得到 hashed URL
-  import heroImg from '../assets/hero.png'
-  import vueLogo from '../assets/vue.svg'
-  const count = ref(0)                        ← 唯一響應式狀態
-  render: #center + #next-steps + #spacer
+GifGallery.vue:
+  const activeCategory = ref('所有')   ← 類別篩選狀態
+  const copied = ref<number | null>(null)  ← 複製回饋狀態
+  render: 頁面標題 + 類別篩選按鈕 + GIF 卡片網格
 ```
 
 ---
 
 ## 元件架構
 
-目前只有兩層元件：
-
 ```
-App.vue (根元件)
-└── HelloWorld.vue (唯一子元件，含全部 UI)
-    ├── <section id="center">          ← Hero 圖 + 標題 + 計數器按鈕
-    │   ├── .hero (div)
-    │   │   ├── <img class="base">     ← hero.png，170×179，z-index:0
-    │   │   ├── <img class="framework"> ← vue.svg，3D 透視旋轉，z-index:1
-    │   │   └── <img class="vite">     ← vite.svg，3D 透視旋轉，z-index:0
-    │   ├── <div>標題 + 說明文字</div>
-    │   └── <button class="counter">   ← count++ 計數器
-    ├── <div class="ticks">            ← 純裝飾性分隔線（CSS ::before/::after 實現）
-    ├── <section id="next-steps">      ← 兩欄式連結區塊
-    │   ├── <div id="docs">            ← Documentation 欄（Vite、Vue 連結）
-    │   └── <div id="social">         ← Community 欄（GitHub、Discord、X、Bluesky）
-    ├── <div class="ticks">
-    └── <section id="spacer">         ← 底部 88px 間距
+App.vue (根元件 — 後台管理 Shell)
+├── <aside>  ← 可收合 Sidebar
+│   ├── 品牌標題「後台管理」（展開時顯示）
+│   ├── 展開/收起切換按鈕（SVG chevron icon）
+│   └── <nav> 選單項目（目前只有「常用 GIF 圖庫」）
+└── <main>
+    └── GifGallery.vue  ← 常用 GIF 圖庫頁面
+        ├── 頁面標題 + 副標
+        ├── 類別篩選按鈕列（所有 / 可愛 / 常用）
+        └── GIF 卡片網格
+            └── 卡片 × N
+                ├── <img> GIF 預覽（aspect-video）
+                ├── 圖片標題
+                ├── 類別標籤
+                └── 複製網址按鈕
 ```
 
 ---
