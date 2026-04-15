@@ -1,45 +1,32 @@
 # CLAUDE.md
 
-本檔案為 Claude Code (claude.ai/code) 在此專案中工作時提供指引。
+## 專案概述
 
-## 指令
+**ya-resource-frontend-app** — Vue 3 + TypeScript + Vite + Tailwind CSS 4 的單頁應用程式（SPA）。使用 `<script setup>` Composition API，TypeScript 嚴格模式，以 Vite 作為建置工具。
+
+## 常用指令
 
 ```bash
-npm run dev       # 啟動 Vite 開發伺服器（支援 HMR 熱更新）
-npm run build     # 型別檢查（vue-tsc）後進行正式環境建置
-npm run preview   # 在本機預覽正式環境建置結果
+npm run dev       # 啟動 Vite 開發伺服器（HMR 熱更新，預設 http://localhost:5173）
+npm run build     # vue-tsc 型別檢查後進行正式環境建置，輸出至 dist/
+npm run preview   # 在本機以靜態伺服器預覽 dist/ 建置結果
 ```
 
-目前未設定任何 linting、格式化或測試指令。
+目前未設定 linting、格式化或測試指令。
 
-## 架構
+## 關鍵規則
 
-本專案為 **Vue 3 + TypeScript + Vite** 的單頁應用程式（SPA），技術棧如下：
+- **Composition API only**：所有元件使用 `<script setup lang="ts">`，不使用 Options API
+- **TypeScript 嚴格模式**：`noUnusedLocals`、`noUnusedParameters` 均為 true，宣告未使用的變數會導致建置失敗
+- **靜態資源兩種路徑**：模組化引入放 `src/assets/`；需以 URL 直接存取（如 SVG sprite）放 `public/`
+- **樣式優先使用 Tailwind**：全域 CSS 自訂屬性定義於 `src/style.css`，元件樣式優先使用 Tailwind utility class，複雜動畫或特殊 CSS 才使用 `<style>` 區塊
+- **計畫歸檔**：功能開發使用 `docs/plans/` 記錄計畫；完成後移至 `docs/plans/archive/`，並更新 `docs/FEATURES.md` 與 `docs/CHANGELOG.md`
 
-- **Vue 3**：使用 `<script setup>` Composition API 語法
-- **TypeScript**：啟用嚴格模式（強制 `noUnusedLocals`、`noUnusedParameters`）
-- **Vite**：作為建置工具與開發伺服器
+## 詳細文件
 
-### 進入點
-
-- `index.html` — HTML 外殼，以 ES module 方式載入 `/src/main.ts`
-- `src/main.ts` — 建立 Vue 應用程式並掛載至 `#app`
-- `src/App.vue` — 根元件
-
-### TypeScript 設定
-
-`tsconfig.json` 引用了兩份獨立設定：
-- `tsconfig.app.json` — 涵蓋 `src/`（嚴格模式、Vue 感知、DOM 型別）
-- `tsconfig.node.json` — 涵蓋 `vite.config.ts`（Node 型別、ES2023）
-
-### 樣式
-
-全域樣式與 CSS 自訂屬性定義於 `src/style.css`。深色模式透過 `@media (prefers-color-scheme: dark)` 處理。元件本地樣式放在各 `.vue` 檔案的 `<style>` 區塊中。
-
-### 靜態資源
-
-以模組方式匯入的靜態資源應放在 `src/assets/`。`public/` 中的檔案會直接以根路徑提供（例如 `public/icons.svg` 可透過 `/icons.svg` 存取，並以 SVG `<use>` 方式引用）。
-
-### 狀態管理與路由
-
-未安裝路由器或全域狀態管理（Vue Router / Pinia）。狀態使用 Composition API 的 `ref`／`reactive` 在元件層級管理。
+- [docs/README.md](./docs/README.md) — 項目介紹與快速開始
+- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) — 架構、目錄結構、資料流
+- [docs/DEVELOPMENT.md](./docs/DEVELOPMENT.md) — 開發規範、命名規則
+- [docs/FEATURES.md](./docs/FEATURES.md) — 功能列表與完成狀態
+- [docs/TESTING.md](./docs/TESTING.md) — 測試規範與指南
+- [docs/CHANGELOG.md](./docs/CHANGELOG.md) — 更新日誌
