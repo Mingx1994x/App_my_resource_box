@@ -39,7 +39,8 @@ ya-resource-frontend-app/
 │   │   └── vue.svg              # Vue 標誌
 │   └── components/
 │       ├── HelloWorld.vue       # 原始展示元件（Hero 圖、計數器按鈕、Next Steps）
-│       └── GifGallery.vue       # 常用 GIF 圖庫頁面（類別篩選、卡片網格、複製網址）
+│       ├── GifGallery.vue       # 常用 GIF 圖庫頁面（類別篩選、卡片網格、複製網址）
+│       └── CategoryModal.vue    # 新增類別 Modal（vue3-colorpicker、hex 顯示、表單驗證）
 │
 ├── docs/                        # 專案文件目錄
 │   ├── README.md
@@ -79,9 +80,12 @@ App.vue render（後台管理 Shell）:
   </main>
     ↓
 GifGallery.vue:
-  const activeCategory = ref('所有')   ← 類別篩選狀態
+  const categories = ref<Category[]>(...)  ← 類別清單（含 hex 色碼），可動態新增
+  const activeCategory = ref('所有')       ← 類別篩選狀態
   const copied = ref<number | null>(null)  ← 複製回饋狀態
-  render: 頁面標題 + 類別篩選按鈕 + GIF 卡片網格
+  const showCategoryModal = ref(false)     ← Modal 開關
+  categoryStyle(hex) → inline style        ← hex 轉半透明色彩 style
+  render: 頁面標題 + 類別篩選按鈕列 + GIF 卡片網格 + CategoryModal
 ```
 
 ---
@@ -97,13 +101,17 @@ App.vue (根元件 — 後台管理 Shell)
 └── <main>
     └── GifGallery.vue  ← 常用 GIF 圖庫頁面
         ├── 頁面標題 + 副標
-        ├── 類別篩選按鈕列（所有 / 可愛 / 常用）
-        └── GIF 卡片網格
-            └── 卡片 × N
-                ├── <img> GIF 預覽（aspect-video）
-                ├── 圖片標題
-                ├── 類別標籤
-                └── 複製網址按鈕
+        ├── 類別篩選按鈕列 + 「新增類別」按鈕
+        ├── GIF 卡片網格
+        │   └── 卡片 × N
+        │       ├── <img> GIF 預覽（aspect-video）
+        │       ├── 圖片標題
+        │       ├── 類別標籤（hex inline style）
+        │       └── 複製網址按鈕
+        └── CategoryModal.vue  ← <Teleport to="body">，渲染至 #app 外層
+            ├── 標籤名稱 input（必填驗證）
+            ├── 顏色選取器（vue3-colorpicker）+ hex 唯讀 input + 預覽 pill
+            └── 內容說明 textarea（選填）
 ```
 
 ---

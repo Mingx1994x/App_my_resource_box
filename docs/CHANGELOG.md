@@ -10,6 +10,32 @@
 
 ---
 
+## [0.3.0] — 2026-04-16
+
+### 新增
+
+- **類別管理 Modal**（`src/components/CategoryModal.vue`）
+  - 新增類別按鈕（虛線邊框 pill），位於 GifGallery 篩選列末端，以分隔線與篩選 pills 區隔
+  - Modal 含三個欄位：標籤名稱（必填，blur 時驗證）、顏色（色彩選取器）、內容說明（選填）
+  - 整合 `vue3-colorpicker` 套件進行顏色選取，可選任意色彩
+  - 顏色欄位包含顏色預覽圓 + 不可編輯的 hex 碼顯示框 + 預覽 pill
+  - `<Teleport to="body">` + `<Transition name="modal-fade">` 確保遮罩層疊與入場動畫
+  - 三種關閉機制：X 按鈕、點擊遮罩、按 `Escape`；關閉後表單自動重置
+  - 送出後新類別即時反映在篩選按鈕列
+
+### 變更
+
+- **`src/components/GifGallery.vue`**
+  - 類別色彩系統從 Tailwind 固定 token（`amber`/`pink`/`sky` union type）改為任意 hex 字串
+  - 新增 `categoryStyle(hex)` 輔助函式，以 hex opacity 後綴產生半透明背景與邊框，取代 `categoryClass()`
+  - 類別篩選按鈕 active 狀態與卡片標籤均改用 `:style` 繫結
+
+### 依賴
+
+- 新增 `vue3-colorpicker` 至 `dependencies`
+
+---
+
 ## [0.2.0] — 2026-04-15
 
 ### 新增
