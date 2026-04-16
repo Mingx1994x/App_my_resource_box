@@ -1,6 +1,6 @@
 # 功能清單 (FEATURES.md)
 
-最後更新：2026-04-15
+最後更新：2026-04-16
 
 ## 功能狀態總覽
 
@@ -10,6 +10,7 @@
 | Tailwind CSS 4 整合 | ✅ 完成 | @tailwindcss/vite plugin |
 | 後台管理介面 | ✅ 完成 | 暗黑模式、可收合 Sidebar |
 | 常用 GIF 圖庫 | ✅ 完成 | 類別篩選、GIF 卡片、複製網址 |
+| 類別管理 | ✅ 完成 | 新增類別 Modal，含顏色選取器與 hex 顯示 |
 | 深色模式 | ✅ 完成 | 後台固定暗色，不跟隨系統偏好 |
 | 響應式佈局 | ✅ 完成 | 卡片網格 1/2/3 欄自動切換 |
 | 互動計數器 | ✅ 完成 | HelloWorld 展示元件（已不在主入口） |
@@ -43,7 +44,7 @@
 
 **行為描述**：
 - 頁面標題 + 副標描述
-- 類別篩選按鈕（所有 / 可愛 / 常用），點擊後即時過濾卡片清單
+- 類別篩選按鈕列，點擊後即時過濾卡片清單；末端有「新增類別」虛線邊框按鈕
 - 卡片網格：`grid-cols-1`（手機）/ `sm:grid-cols-2` / `lg:grid-cols-3`
 - 每張卡片：
   - `aspect-video` GIF 預覽圖（直接以 URL 作為 `<img src>`）
@@ -52,11 +53,40 @@
 
 **色彩規則**（篩選按鈕 active 與卡片標籤統一）：
 
-| 類別 | 色系 | Tailwind class |
-|------|------|---------------|
-| 所有 | Amber | `text-amber-400 bg-amber-400/15 border-amber-400/25` |
-| 可愛 | Pink | `text-pink-400 bg-pink-500/15 border-pink-500/25` |
-| 常用 | Sky | `text-sky-400 bg-sky-500/15 border-sky-500/25` |
+類別顏色以 hex 字串儲存，透過 `categoryStyle(hex)` 輔助函式產生 inline style，不使用固定 Tailwind token：
+
+| 類別 | 預設 hex | 說明 |
+|------|----------|------|
+| 所有 | `#F59E0B` | 可於新增類別時自訂任意色 |
+| 可愛 | `#EC4899` | 同上 |
+| 常用 | `#0EA5E9` | 同上 |
+
+`categoryStyle` 將 hex 轉換為半透明背景（`hex + '26'` ≈ 15% opacity）、文字色（`hex`）、邊框色（`hex + '40'` ≈ 25% opacity）。
+
+---
+
+### 類別管理
+
+**狀態**：✅ 完成
+
+`src/components/CategoryModal.vue`，由 GifGallery 內的「新增類別」按鈕觸發。
+
+**行為描述**：
+- 點擊「新增類別」按鈕 → Modal 以淡入動畫開啟
+- 表單三個欄位：
+  1. **標籤名稱**（必填）— 空值送出時顯示行內錯誤訊息
+  2. **顏色** — 整合 `vue3-colorpicker` 套件，可選取任意色彩；下方顯示：
+     - 顏色預覽圓（與選取色同步更新）
+     - 不可編輯的 hex 碼輸入框（顯示如 `F59E0B`，前綴 `#` 獨立顯示）
+     - 預覽 pill（以 inline style 呈現選取色）
+  3. **內容說明**（選填）— `rows=3` textarea
+- 送出後新類別即時加入篩選按鈕列，顏色立即生效
+- 關閉方式：點擊 X 按鈕、點擊背景遮罩、按 `Escape`；任一方式皆重置表單
+
+**技術細節**：
+- 使用 `<Teleport to="body">` 確保遮罩層疊在 Sidebar 之上
+- `v-model:pureColor` 繫結 `vue3-colorpicker`，`format="hex"` 確保回傳值為 6 位 hex 字串
+- Scoped CSS 覆寫 `vue3-colorpicker` 預設樣式（隱藏內建 input、去除背景與陰影），使其融入深色主題
 
 ---
 

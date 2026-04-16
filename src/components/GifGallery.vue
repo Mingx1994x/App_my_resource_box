@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import CategoryModal from './CategoryModal.vue'
 
-const categories = ['所有', '可愛', '常用']
+interface Category { label: string; color: string; description: string }
+
+const categories = ref<Category[]>([
+  { label: '所有', color: '#F59E0B', description: '' },
+  { label: '可愛', color: '#EC4899', description: '' },
+  { label: '常用', color: '#0EA5E9', description: '' },
+])
 const activeCategory = ref('所有')
 
 const gifs = [
@@ -40,11 +47,22 @@ const filteredGifs = () =>
     ? gifs
     : gifs.filter((g) => g.category === activeCategory.value)
 
-// 統一類別色彩：篩選按鈕 active 與卡片標籤共用同一套色
-function categoryClass(cat: string) {
-  if (cat === '可愛') return 'bg-pink-500/15 text-pink-400 border border-pink-500/25'
-  if (cat === '常用') return 'bg-sky-500/15 text-sky-400 border border-sky-500/25'
-  return 'bg-amber-400/15 text-amber-400 border border-amber-400/25' // 所有
+// 以 hex 色碼產生半透明的類別色彩 style（篩選按鈕 active 與卡片標籤共用）
+function categoryStyle(hex: string): Record<string, string> {
+  return {
+    color: hex,
+    backgroundColor: hex + '26',  // ~15% opacity
+    borderColor: hex + '40',       // ~25% opacity
+  }
+}
+
+function colorForCategory(label: string): string {
+  return categories.value.find(c => c.label === label)?.color ?? '#F59E0B'
+}
+
+const showCategoryModal = ref(false)
+function handleCategoryConfirm(form: { name: string; color: string; description: string }) {
+  categories.value.push({ label: form.name, color: form.color, description: form.description })
 }
 </script>
 
@@ -57,19 +75,29 @@ function categoryClass(cat: string) {
     </div>
 
     <!-- Category Filters -->
-    <div class="flex flex-wrap gap-2.5 mb-8">
+    <div class="flex flex-wrap items-center gap-2.5 mb-8">
       <button
         v-for="cat in categories"
-        :key="cat"
-        @click="activeCategory = cat"
-        class="px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer"
-        :class="
-          activeCategory === cat
-            ? categoryClass(cat)
-            : 'bg-gray-800 text-gray-500 border border-gray-700 hover:text-amber-400 hover:border-amber-400/40 hover:bg-gray-800'
-        "
+        :key="cat.label"
+        @click="activeCategory = cat.label"
+        class="px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer border"
+        :style="activeCategory === cat.label ? categoryStyle(cat.color) : {}"
+        :class="activeCategory !== cat.label && 'bg-gray-800 text-gray-500 border-gray-700 hover:text-amber-400 hover:border-amber-400/40'"
       >
-        {{ cat }}
+        {{ cat.label }}
+      </button>
+
+      <div class="w-px h-5 bg-gray-700 mx-0.5" />
+
+      <button
+        @click="showCategoryModal = true"
+        class="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium border border-dashed border-gray-600
+               text-gray-500 hover:text-amber-400 hover:border-amber-400/50 transition-all duration-200 cursor-pointer"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        新增類別
       </button>
     </div>
 
@@ -94,8 +122,8 @@ function categoryClass(cat: string) {
           <div class="flex items-center justify-between gap-2 mb-4">
             <h3 class="text-gray-100 font-medium text-sm leading-snug">{{ gif.title }}</h3>
             <span
-              class="text-xs px-2.5 py-1 rounded-full flex-shrink-0 font-medium"
-              :class="categoryClass(gif.category)"
+              class="text-xs px-2.5 py-1 rounded-full flex-shrink-0 font-medium border"
+              :style="categoryStyle(colorForCategory(gif.category))"
             >
               {{ gif.category }}
             </span>
@@ -146,5 +174,7 @@ function categoryClass(cat: string) {
         </div>
       </div>
     </div>
+
+    <CategoryModal v-model="showCategoryModal" @confirm="handleCategoryConfirm" />
   </div>
 </template>
